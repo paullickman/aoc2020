@@ -10,7 +10,7 @@ def valid(p):
 def valid2(p):
     pos1 = p.password[p.lowest-1] == p.letter
     pos2 = p.password[p.highest-1] == p.letter
-    return (pos1 and not(pos2)) or (not(pos1) and pos2)
+    return pos1 != pos2
 
 class Passwords():
 
