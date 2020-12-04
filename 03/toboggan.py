@@ -19,7 +19,7 @@ class Map():
         return num
 
     def counts(self, slopes):
-        return math.prod([self.count(s[0], s[1]) for s in slopes])
+        return math.prod([self.count(i, j) for i, j in slopes])
 
 m = Map('test.txt')
 assert(m.count(3,1) == 7)

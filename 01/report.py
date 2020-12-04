@@ -4,7 +4,7 @@ import math
 class report():
 
     def __init__(self, filename):
-        with open(filename) as f:
+        with open('01/' + filename) as f:
             self.nums = list(map(int,f.readlines()))
 
     def search(self, n):

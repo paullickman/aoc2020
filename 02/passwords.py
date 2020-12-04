@@ -15,7 +15,7 @@ def valid2(p):
 class Passwords():
 
     def __init__(self, filename):
-        with open(filename) as f:
+        with open('02/' + filename) as f:
             strip = map(lambda x: re.split('-| |: ', x.strip()), f.readlines())
         self.passwords = list(map(lambda x: Password(int(x[0]), int(x[1]), x[2], x[3]), strip))
 
