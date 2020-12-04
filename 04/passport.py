@@ -1,4 +1,3 @@
-
 def validPair(key, value):
     if key == 'byr':
         return len(value) == 4 and int(value) >= 1920 and int(value) <= 2002
@@ -17,19 +16,13 @@ def validPair(key, value):
             return False
         if value[0] != '#':
             return False
-        for c in value[1:]:
-            if not((c >= '0' and c <= '9') or (c >= 'a' and c <= 'f')):
-                return False
-        return True
+        return all((c >= '0' and c <= '9') or (c >= 'a' and c <= 'f') for c in value[1:])
     elif key == 'ecl':
         return value in "amb blu brn gry grn hzl oth".split(' ')
     elif key == 'pid':
         if len(value) != 9:
             return False
-        for c in value:
-            if c < '0' or c > '9':
-                return False
-        return True
+        return all(c >= '0' and c <= '9' for c in value)
     elif key == 'cid':
         return True
 
@@ -68,16 +61,12 @@ class Passport():
             self.passports.append(passport)
 
     def valid(self, passport, strict):
-        mandatory = ['byr','iyr','eyr','hgt','hcl','ecl','pid']
-        for m in mandatory:
-            if not(m in passport.keys()):
-                return False
+        # Check mandatory fields present
+        if any(not(m in passport.keys()) for m in ['byr','iyr','eyr','hgt','hcl','ecl','pid']):
+            return False
         if not(strict):
             return True
-        for k in passport.keys():
-            if not(validPair(k, passport[k])):
-                return False
-        return True
+        return all(validPair(k, passport[k]) for k in passport.keys())
 
     def numValid(self, strict = False):
         return len(list(filter(lambda x: self.valid(x, strict), self.passports)))
