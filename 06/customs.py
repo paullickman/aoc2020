@@ -7,17 +7,8 @@ def countEveryone(answer):
 class Answers():
 
     def __init__(self, filename):
-        self.answers = []
-        answer = []
         with open('06/' + filename) as f:
-            for line in f.readlines():
-                line = line.strip()
-                if line == '':
-                    self.answers.append(answer)
-                    answer = []
-                else:
-                    answer.append(line)
-            self.answers.append(answer)
+            self.answers = list(map(lambda x: x.splitlines(), f.read().split('\n\n')))
     
     def counts(self, count = countSomeone):
         return sum(map(count, self.answers))

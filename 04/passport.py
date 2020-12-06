@@ -1,3 +1,5 @@
+import re
+
 def validPair(key, value):
     if key == 'byr':
         return len(value) == 4 and int(value) >= 1920 and int(value) <= 2002
@@ -43,22 +45,9 @@ assert(validPair('pid', '0123456789') == False)
 class Passport():
 
     def __init__(self, filename):
-        self.passports = []
-        passport = {}
         with open('04/' + filename) as f:
-            for line in f.readlines():
-                line = line.strip()
-                if line == '':
-                    self.passports.append(passport)
-                    passport = {}
-                else:
-                    fields = line.split(' ')
-                    for pair in fields:
-                        pair = pair.split(':')
-                        key = pair[0]
-                        value = pair[1]
-                        passport[key] = value
-            self.passports.append(passport)
+            d = list(map(lambda x: re.split('\n| ', x), f.read().split('\n\n')))
+        self.passports = list(map(lambda x: dict(map(lambda x: x.split(':'), x)), d))
 
     def valid(self, passport, strict):
         # Check mandatory fields present
