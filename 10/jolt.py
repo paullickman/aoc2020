@@ -1,6 +1,12 @@
 import collections
 import functools
 
+def differences(nums):
+    last = 0
+    for num in nums:
+        yield num - last
+        last = num
+
 class Jolt():
     def __init__(self, filename):
         with open('10/' + filename) as f:
@@ -9,12 +15,7 @@ class Jolt():
             self.length = len(self.ratings)
 
     def chain(self):
-        joltage = 0
-        diffs = collections.defaultdict(int) # use counter instead
-        for rating in self.ratings:
-            diff = rating - joltage
-            diffs[diff] += 1
-            joltage = rating
+        diffs = collections.Counter(differences(self.ratings))
         diffs[3] += 1
         return diffs[1] * diffs[3]
 
