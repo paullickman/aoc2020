@@ -10,6 +10,7 @@ class Tickets():
         with open('16/' + filename) as f:
             lines = f.readlines()
 
+        # Parse fields
         self.fields = []
         i = 0
         while len(lines[i]) > 1:
@@ -19,9 +20,11 @@ class Tickets():
                 self.fields.append((Range(int(g[0]), int(g[1])), Range(int(g[2]), int(g[3]))))
             i += 1
 
+        # Parse my ticket
         i += 2
         self.ticket = list(map(int, lines[i].split(',')))
 
+        # Parse nearby tickets
         i += 3
         self.nearby = []
         while i < len(lines) and len(lines[i]) > 1:
@@ -29,20 +32,13 @@ class Tickets():
             i += 1
 
     def possible(self, n):
-        for f in self.fields:
-            for r in f:
-                if r.lower <= n and n <= r.upper:
-                    return True
-        return False
+        return any([r.lower <= n and n <= r.upper for f in self.fields for r in f])
 
     def errorRate(self):
         return sum([n for t in self.nearby for n in t if not self.possible(n)])
 
     def search(self):
-        valid = [self.ticket]
-        for t in self.nearby:
-            if all(map(self.possible, t)):
-                valid.append(t)
+        valid = [self.ticket] + list(filter(lambda t: all(map(self.possible, t)), self.nearby))
         
         possible = []
         for f in self.fields:
@@ -58,7 +54,7 @@ class Tickets():
 
     def scan(self, partition, solution):
         if partition == []:
-            print(math.prod([self.ticket[solution[i]] for i in range(6)]))
+            print(math.prod([self.ticket[solution[i]] for i in range(6)])) # Fields with 'departure' in
         else:
             for n in partition[0][1]:
                 r = remove(n, partition[1:])
