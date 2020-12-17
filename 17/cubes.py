@@ -15,6 +15,9 @@ class Cubes():
                         self.cube[(x,y) + tuple([0] * (self.dimension - 2))] = True
                 y += 1
 
+        self.offsets = list(itertools.product([-1, 0, 1], repeat=self.dimension))
+        self.offsets.remove(tuple([0] * self.dimension))
+
     def iterate(self):
         newCube = self.cube.copy()
 
@@ -31,13 +34,7 @@ class Cubes():
         self.cube = newCube
 
     def numNeighbours(self, point):
-        num = 0
-        for offset in itertools.product([-1, 0, 1], repeat=self.dimension):
-            if any(n != 0 for n in offset): # not itself
-                neighbour = tuple(map(sum, zip(point, offset)))
-                if self.cube[neighbour]:
-                    num += 1
-        return num
+        return len(list(filter(lambda p: self.cube[p], [tuple(map(sum, zip(point, offset))) for offset in self.offsets])))
 
     def boot(self):
         # Iterate 6 times
