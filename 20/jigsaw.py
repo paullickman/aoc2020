@@ -7,7 +7,7 @@ def rotate(tile):
     size = len(tile[0])
     newTile = []
     for y in range(size):
-        line = ''
+        line = []
         for x in range(size):
             line += tile[x][size-1-y]
         newTile.append(line)
@@ -66,7 +66,7 @@ class Jigsaw():
     def __init__(self, tiles):
         self.tiles = tiles
         # self.numTiles = tiles.num
-        self.size = math.sqrt(tiles.num)
+        self.size = int(math.sqrt(tiles.num))
 
         self.order = list(diagonal(self.size))
 
@@ -90,28 +90,89 @@ class Jigsaw():
 
     def search(self, i, grid, tilesRemaining):
         if tilesRemaining == []:
-            # return math.prod([self.grid[x][y].tileId] for x in [0, self.size-1] for y in [0, self.size-1])
-            print(math.prod([grid[self.order.index(Coord(0,0))].tileId, grid[self.order.index(Coord(0,self.size-1))].tileId, grid[self.order.index(Coord(self.size-1,0))].tileId, grid[self.order.index(Coord(self.size-1,self.size-1))].tileId]))
-            return
+
+            # Store image
+            image = []
+            for tiley in range(self.size):
+                for j in range(1,9):
+                    line = []
+                    for tilex in range(self.size):
+                        placement = grid[self.order.index(Coord(tilex,tiley))]
+                        tile = self.tiles.tiles[placement.tileId]
+                        rotation = tile.rotations[placement.rotationNum]
+                        tile = rotation.tile
+                        for i in range(1,9):
+                            line.append(tile[j][i])
+                    image.append(line)
+            self.image = Image()
+            self.image.seed(image)
+
+            return math.prod([grid[self.order.index(Coord(0,0))].tileId, grid[self.order.index(Coord(0,self.size-1))].tileId, grid[self.order.index(Coord(self.size-1,0))].tileId, grid[self.order.index(Coord(self.size-1,self.size-1))].tileId])
         else:
             for tileId in tilesRemaining:
                 for rotationNum in range(8):
                     if self.aligned(grid, i, tileId, rotationNum):
                         newTilesRemaining = tilesRemaining.copy()
                         newTilesRemaining.remove(tileId)
-                        self.search(i+1, grid + [Placement(tileId, rotationNum)], newTilesRemaining)
+                        if (found := self.search(i+1, grid + [Placement(tileId, rotationNum)], newTilesRemaining)) != None:
+                            return found
 
     def solve(self):
         self.grid = []
         tilesRemaining = list(self.tiles.tiles.keys())
 
-        self.search(0, [], tilesRemaining)
+        return self.search(0, [], tilesRemaining)
+
+class Image():
+    def load(self, filename):
+        with open('20/' + filename) as f:
+            self.image = list(map(lambda x: list(x.strip()), f.readlines()))
+        self.imageHeight = len(self.image)
+        self.imageWidth = len(self.image[0])
+
+    def seed(self, image):
+        self.image = image
+        self.imageHeight = len(self.image)
+        self.imageWidth = len(self.image[0])
+
+    def roughness(self):
+        monster = ['                  # ', '#    ##    ##    ###', ' #  #  #  #  #  #   ']
+        monsterHeight = len(monster)
+        monsterWidth = len(monster[0])
+        for x in range(self.imageWidth - monsterWidth + 1):
+            for y in range(self.imageHeight - monsterHeight + 1):
+                found = True
+                for i in range(monsterWidth):
+                    for j in range(monsterHeight):
+                        if monster[j][i] == '#' and self.image[y+j][x+i] not in ['#', 'O']:
+                            found = False
+                if found:
+                    for i in range(monsterWidth):
+                        for j in range(monsterHeight):
+                            if monster[j][i] == '#':
+                                self.image[y+j][x+i] = 'O'
+
+        return sum(map(lambda line: len(list(filter(lambda x: x == '#', line))), self.image))
+
+    def roughnessSearch(self):
+        roughnessList = []
+        for _ in range(2):
+            for _ in range(4):
+                roughnessList.append(self.roughness())
+                self.image = rotate(self.image)
+            self.image = flip(self.image)
+        return min(roughnessList)
 
 tiles = Tiles('test.txt')
 jigsaw = Jigsaw(tiles)
-jigsaw.solve()
-# Expect 20899048083289
+assert jigsaw.solve() == 20899048083289
 
 tiles = Tiles('input.txt')
 jigsaw = Jigsaw(tiles)
-jigsaw.solve()
+print(jigsaw.solve())
+
+i = Image()
+i.load('monster_test.txt')
+assert i.roughness() == 273
+
+print(jigsaw.image.roughnessSearch())

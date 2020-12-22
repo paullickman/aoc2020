@@ -52,7 +52,6 @@ d.exec()
 assert d.sum() == 165
 d = Data('test2.txt')
 d.exec2()
-print(d.sum())
 assert d.sum() == 208
 
 d = Data('input.txt')
